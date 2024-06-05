@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration and Sign-In</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        .main-bg-contaoner {
+            background-image: url('https://wallpapercave.com/wp/wp9764022.jpg');
+            height: 100vh;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-content: center;
+            align-items: center;
+        }
+
+        .box-container {
+            height: 200px;
+            width: 300px;
+            background-color: aliceblue;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            padding-top: 100px;
+            border-radius: 40px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-bg-contaoner" id="formContainer">
+        <!-- Registration Form -->
+        <form id="registerForm" class="hidden box-container">
+            <div>
+                <div>
+                    <label for="registerName" class="labels-container">Name:</label>
+                    <input type="text" id="registerName" name="name" required><br><br>
+                </div>
+
+                <div>
+                    <label for="registerEmail">Email:</label>
+                    <input type="email" id="registerEmail" name="email" required><br><br>
+
+                </div>
+                <div>
+                    <label for="registerPassword">Password:</label>
+                    <input type="password" id="registerPassword" name="password" required><br><br>
+                </div>
+
+                <button type="submit">Register</button>
+            </div>
+        </form>
+
+        <!-- Sign-In Form -->
+        <form id="signInForm " class="box-container">
+            <div>
+                <div>
+                    <label for="signinEmail">Email:</label>
+                    <input type="email" id="signinEmail" name="email" required><br><br>
+                </div>
+
+                <div>
+                    <label for="signinPassword">Password:</label>
+                    <input type="password" id="signinPassword" name="password" required><br><br>
+                </div>
+
+                <div>
+                    <button type="submit">Sign In</button>
+                    <button id="toggleFormButton">Register</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            try {
+                const response = await fetch('http://localhost:5000/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert('User registered successfully: ' + JSON.stringify(result));
+                } else {
+                    const error = await response.json();
+                    console.error('Server responded with error:', error);
+                    alert('Error: ' + error.error);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                alert('An error occurred while registering the user.');
+            }
+        });
+
+        document.getElementById('signInForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById('signinEmail').value;
+            const password = document.getElementById('signinPassword').value;
+
+            try {
+                const response = await fetch('http://localhost:5000/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert('Thank you for visiting, ' + result.user.name);
+                } else {
+                    const error = await response.json();
+                    console.error('Server responded with error:', error);
+                    alert('Error: ' + error.error);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                alert('An error occurred while signing in.');
+            }
+        });
+
+        document.getElementById('toggleFormButton').addEventListener('click', function () {
+            const registerForm = document.getElementById('registerForm');
+            const signInForm = document.getElementById('signInForm');
+            const toggleButton = document.getElementById('toggleFormButton');
+
+            if (registerForm.classList.contains('hidden')) {
+                registerForm.classList.remove('hidden');
+                signInForm.classList.add('hidden');
+                toggleButton.textContent = 'Switch to Sign In';
+            } else {
+                registerForm.classList.add('hidden');
+                signInForm.classList.remove('hidden');
+                toggleButton.textContent = 'Switch to Register';
+            }
+        });
+
+        // Initially show sign-in form
+        document.getElementById('signInForm').classList.remove('hidden');
+    </script>
+</body>
+
+</html>
